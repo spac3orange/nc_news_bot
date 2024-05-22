@@ -28,18 +28,30 @@ async def delete_image(filename):
         return True
     return False
 
+
 @router.callback_query(F.data.startswith('send_handled_post'))
 async def p_send_handled(call: CallbackQuery):
     env = Env()
-    channel_id = env.int('TARGET_CHANNEL_ID')
+    channel_id = env('TARGET_CHANNEL_ID')
     message_id = int(call.data.split('_')[-1])
+    if len(channel_id) > 14:
+        channel_id = channel_id.split(',')
     try:
-        await aiogram_bot.copy_message(
-            chat_id=channel_id,
-            from_chat_id=call.from_user.id,
-            message_id=message_id
-        )
-        await call.message.answer('Сообщение успешно отправлено в канал!')
+        if isinstance(channel_id, list):
+            for channel in channel_id:
+                await aiogram_bot.copy_message(
+                    chat_id=int(channel),
+                    from_chat_id=call.from_user.id,
+                    message_id=message_id
+                )
+                await call.message.answer('Сообщение успешно отправлено в канал!')
+        else:
+            await aiogram_bot.copy_message(
+                chat_id=int(channel_id),
+                from_chat_id=call.from_user.id,
+                message_id=message_id
+            )
+            await call.message.answer('Сообщение успешно отправлено в канал!')
     except Exception as e:
         logger.error(f"Ошибка при отправке сообщения: {e}")
         await call.message.answer('Произошла ошибка при попытке отправить сообщение.')

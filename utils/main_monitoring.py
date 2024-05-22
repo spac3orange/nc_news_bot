@@ -134,11 +134,13 @@ async def parse_news():
                                     print(handled)
                                 if mode == 'Модерация отключена':
                                     env = Env()
-                                    channel_id = env.int('TARGET_CHANNEL_ID')
+                                    channel_id = env('TARGET_CHANNEL_ID')
+                                    channel_id = channel_id.split('.')
                                     if len(result) == 2:
                                         if isinstance(admin_id, list):
                                             img_fila = await send_image(img_name)
-                                            await aiogram_bot.send_photo(channel_id, img_fila, caption=handled)
+                                            for channel in channel_id:
+                                                await aiogram_bot.send_photo(int(channel), img_fila, caption=handled)
                                             for admin in admin_id:
                                                 try:
                                                     admin = int(admin)
@@ -150,7 +152,8 @@ async def parse_news():
                                                     continue
                                     else:
                                         if isinstance(admin_id, list):
-                                            await aiogram_bot.send_message(channel_id, text=handled)
+                                            for channel in channel_id:
+                                                await aiogram_bot.send_message(int(channel), text=handled)
                                             for admin in admin_id:
                                                 try:
                                                     admin = int(admin)
