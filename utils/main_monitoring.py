@@ -135,7 +135,7 @@ async def parse_news():
                                 if mode == 'Модерация отключена':
                                     env = Env()
                                     channel_id = env('TARGET_CHANNEL_ID')
-                                    channel_id = channel_id.split('.')
+                                    channel_id = channel_id.split(',')
                                     if len(result) == 2:
                                         if isinstance(admin_id, list):
                                             img_fila = await send_image(img_name)
