@@ -169,6 +169,7 @@ async def parse_news():
                 # Обновляем список известных ссылок, если есть новые
                 if new_links:
                     write_known_links(current_links, file_path)
+                    logger.warning(f'links updated in {file_path}')
     except Exception as e:
         logger.error(e)
 
