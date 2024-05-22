@@ -159,15 +159,15 @@ class BaseParser:
                     print(f"HTTP Status: {response.status}")
                     soup = BeautifulSoup(text, 'lxml')
                     news_block = soup.find('div', class_='article__text article__text_free')
-                    image = soup.find('div', class_='article__main-image__wrap').find('img', class_='g-image article__main-image__image')
-                    if image:
-                        print('image found')
-                        img_link = image['src']
-                        image_name = img_link[-10:]
-                        await write_file(session, img_link, image_name)
-                        return image_name, news_block.text
-                    else:
-                        return news_block.text
+                    #image = soup.find('div', class_='article__main-image__wrap').find('img', class_='g-image article__main-image__image')
+                    # if image:
+                    #     print('image found')
+                    #     img_link = image['src']
+                    #     image_name = img_link[-10:]
+                    #     await write_file(session, img_link, image_name)
+                    #     return image_name, news_block.text
+                    # else:
+                    return news_block.text
         except Exception as e:
             logger.error(e)
 
