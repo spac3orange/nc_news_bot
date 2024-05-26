@@ -143,81 +143,82 @@ async def parse_news():
                                 else:
                                     news_text = result
                                 handled = await ds_ai.get_req(news_text)
-                                if handled is not None:
-                                    admin_id = config_aiogram.admin_id
-                                    mode = edit_mode.get_mode()
-                                    if mode == 'Модерация включена':
-                                        if len(result) == 2:
-                                            if isinstance(admin_id, list):
-                                                for admin in admin_id:
-                                                    try:
-                                                        admin = int(admin)
-                                                        img_fila = await send_image(img_name)
-                                                        message = await aiogram_bot.send_photo(admin, img_fila, caption=handled)
-                                                        reply_markup = kb_admin.handled_post_menu(message.message_id, image_name=img_name)
-                                                        await aiogram_bot.edit_message_reply_markup(chat_id=admin, message_id=message.message_id,
-                                                                                                    reply_markup=reply_markup)
-                                                        await delete_image(img_fila)
-                                                    except Exception as e:
-                                                        logger.error(e)
-                                                        continue
+                                if handled is None:
+                                    print('handled is none')
+                                    continue
+                                admin_id = config_aiogram.admin_id
+                                mode = edit_mode.get_mode()
+                                if mode == 'Модерация включена':
+                                    if len(result) == 2:
+                                        if isinstance(admin_id, list):
+                                            for admin in admin_id:
+                                                try:
+                                                    admin = int(admin)
+                                                    img_fila = await send_image(img_name)
+                                                    message = await aiogram_bot.send_photo(admin, img_fila, caption=handled)
+                                                    reply_markup = kb_admin.handled_post_menu(message.message_id, image_name=img_name)
+                                                    await aiogram_bot.edit_message_reply_markup(chat_id=admin, message_id=message.message_id,
+                                                                                                reply_markup=reply_markup)
+                                                    await delete_image(img_fila)
+                                                except Exception as e:
+                                                    logger.error(e)
+                                                    continue
+                                        else:
+                                            img_fila = await send_image(img_name)
+                                            message = await aiogram_bot.send_photo(admin_id, img_fila, caption=handled)
+                                            reply_markup = kb_admin.handled_post_menu(message.message_id, image_name=img_name)
+                                            await aiogram_bot.edit_message_reply_markup(chat_id=admin_id, message_id=message.message_id,
+                                                                                        reply_markup=reply_markup)
+                                            await delete_image(img_fila)
+
+                                    else:
+                                        if isinstance(admin_id, list):
+                                            for admin in admin_id:
+                                                try:
+                                                    admin = int(admin)
+                                                    message = await aiogram_bot.send_message(admin, text=handled)
+                                                    reply_markup = kb_admin.handled_post_menu(message.message_id)
+                                                    await aiogram_bot.edit_message_reply_markup(chat_id=admin, message_id=message.message_id,
+                                                                                                reply_markup=reply_markup)
+                                                except Exception as e:
+                                                    logger.error(e)
+                                                    continue
+
+                                    print(handled)
+                                if mode == 'Модерация отключена':
+                                    env = Env()
+                                    channel_id = env.int('TARGET_CHANNEL_ID')
+                                    if len(result) == 2:
+                                        if isinstance(admin_id, list):
+                                            if n > 2:
+                                                logger.warning('n > 2')
+                                                continue
+                                            if n > 1:
+                                                timing = random.randint(5, 10)
+                                                timing = timing * 60
+                                                task = asyncio.create_task(delayed_execution(timing, admin_id,
+                                                                                            channel_id, handled,
+                                                                                            img_name, with_image=True))
                                             else:
                                                 img_fila = await send_image(img_name)
-                                                message = await aiogram_bot.send_photo(admin_id, img_fila, caption=handled)
-                                                reply_markup = kb_admin.handled_post_menu(message.message_id, image_name=img_name)
-                                                await aiogram_bot.edit_message_reply_markup(chat_id=admin_id, message_id=message.message_id,
-                                                                                            reply_markup=reply_markup)
-                                                await delete_image(img_fila)
+                                                await aiogram_bot.send_photo(channel_id, img_fila, caption=handled)
+                                                logger.info('post sent')
 
-                                        else:
-                                            if isinstance(admin_id, list):
-                                                for admin in admin_id:
-                                                    try:
-                                                        admin = int(admin)
-                                                        message = await aiogram_bot.send_message(admin, text=handled)
-                                                        reply_markup = kb_admin.handled_post_menu(message.message_id)
-                                                        await aiogram_bot.edit_message_reply_markup(chat_id=admin, message_id=message.message_id,
-                                                                                                    reply_markup=reply_markup)
-                                                    except Exception as e:
-                                                        logger.error(e)
-                                                        continue
+                                    else:
+                                        if isinstance(admin_id, list):
+                                            if n > 2:
+                                                logger.warning('n > 2')
+                                                continue
+                                            if n > 1:
+                                                timing = random.randint(5, 10)
+                                                timing = timing * 60
+                                                task = asyncio.create_task(delayed_execution(timing, admin_id,
+                                                                                            channel_id, handled,
+                                                                                            img_name, with_image=False))
+                                            else:
+                                                await aiogram_bot.send_message(channel_id, text=handled)
+                                                logger.info('post sent')
 
-                                        print(handled)
-                                    if mode == 'Модерация отключена':
-                                        env = Env()
-                                        channel_id = env.int('TARGET_CHANNEL_ID')
-                                        if len(result) == 2:
-                                            if isinstance(admin_id, list):
-                                                if n > 2:
-                                                    logger.warning('n > 2')
-                                                    continue
-                                                if n > 1:
-                                                    timing = random.randint(5, 10)
-                                                    timing = timing * 60
-                                                    task = asyncio.create_task(delayed_execution(timing, admin_id,
-                                                                                                channel_id, handled,
-                                                                                                img_name, with_image=True))
-                                                else:
-                                                    img_fila = await send_image(img_name)
-                                                    await aiogram_bot.send_photo(channel_id, img_fila, caption=handled)
-                                                    logger.info('post sent')
-
-                                        else:
-                                            if isinstance(admin_id, list):
-                                                if n > 2:
-                                                    logger.warning('n > 2')
-                                                    continue
-                                                if n > 1:
-                                                    timing = random.randint(5, 10)
-                                                    timing = timing * 60
-                                                    task = asyncio.create_task(delayed_execution(timing, admin_id,
-                                                                                                channel_id, handled,
-                                                                                                img_name, with_image=False))
-                                                else:
-                                                    await aiogram_bot.send_message(channel_id, text=handled)
-                                                    logger.info('post sent')
-
-                                # break
                             await asyncio.sleep(2)
                         except Exception as e:
                             logger.error(e)
