@@ -4,7 +4,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from config import logger
 from keyboards import kb_admin
+from filters import IsAdmin
 router = Router()
+router.message.filter(IsAdmin(F))
 
 
 @router.message(Command(commands='start'))

@@ -5,7 +5,7 @@ from config import aiogram_bot
 from config.logger import logger
 from keyboards import set_commands_menu
 from handlers import start, work_modes, monitoring, edit_handled, edit_keys
-from utils import monitor
+from utils import monitor, clean
 
 
 async def start_params() -> None:
@@ -31,7 +31,8 @@ async def start_params() -> None:
 async def main():
     task1 = asyncio.create_task(start_params())
     task2 = asyncio.create_task(monitor.start_monitoring())
-    await asyncio.gather(task1, task2)
+    task3 = asyncio.create_task(clean.plan_cleanup())
+    await asyncio.gather(task1, task2, task3)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 from aiogram.filters import BaseFilter
-from data import config_aiogram
+from config import config_aiogram
 from aiogram.types import Message
 
 

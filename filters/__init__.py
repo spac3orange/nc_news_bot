@@ -1,1 +1,1 @@
-from . import is_admin, known_user
+from .is_admin import IsAdmin

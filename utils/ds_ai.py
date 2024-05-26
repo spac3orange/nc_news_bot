@@ -1,11 +1,9 @@
 import random
-
-import requests
+from environs import Env
 import json
-from pprint import pprint
 import re
 import aiohttp
-from config import logger
+from config import logger, aiogram_bot, config_aiogram
 import os
 
 
@@ -21,6 +19,15 @@ async def load_keys():
     with open('utils/ds_keys.json', 'r') as file:
         return json.load(file)
 
+
+async def save_keys(keys):
+    with open('utils/ds_keys.json', 'w') as file:
+        json.dump(keys, file)
+
+async def remove_key(api_key):
+    keys = await load_keys()
+    keys.remove(api_key)
+    await save_keys(keys)
 
 async def append_to_text_file(value, filename='responses.txt'):
     # Открываем файл в режиме добавления. Если файл не существует, он будет создан.
@@ -44,6 +51,8 @@ async def format_text(resp_text):
 
 
 async def get_req(question, api_key=None):
+    env = Env()
+    channel_link = env.str('CHANNEL_LINK')
     if not api_key:
         keys = await load_keys()
         api_key = random.choice(keys)
@@ -95,16 +104,32 @@ async def get_req(question, api_key=None):
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=headers, data=payload) as response:
                 resp = await response.json()
+                print(resp)
                 resp_text = resp["choices"][0]["message"]["content"]
                 if resp_text:
                     form_text = await format_text(resp_text)
                     print('COMMENT')
                     print(form_text)
-                    return form_text
+                    return form_text + f'\n\n<b><a href="{channel_link}">NC NEWS // Подписаться</a></b>'
                 else:
                     return None
     except Exception as e:
+        err_str = str(e)
+        print(err_str)
+        if err_str == "'choices'":
+            await remove_key(api_key)
+            admin_list = config_aiogram.admin_id
+            if isinstance(admin_list, list):
+                logger.warning('api key error')
+                for a in admin_list:
+                    try:
+                        await aiogram_bot.send_message(a, text=f'API ключ <b>{api_key}</b> закончился и был удален из списка ключей.')
+                    except Exception:
+                        continue
+            else:
+                await aiogram_bot.send_message(admin_list, text=f'API ключ <b>{api_key}</b> закончился и был удален из списка ключей.')
         logger.error(e)
+
         return None
 
 #response = get_req(req)

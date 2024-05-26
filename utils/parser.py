@@ -42,16 +42,20 @@ class BaseParser:
         self.url = url
 
     async def fetch_news(self):
+        # deleted items:
+        # 'https://acryptoinvest.news': self.__parse_acrypto,
+        # 'https://cryptocurrency.tech': self.__parse_cctech,
+        # 'https://www.rbc.ru': self.__parse_rbc,
+        # 'https://xrp-buy.ru': self.__parse_xrpbuy,
+        # 'https://www.kommersant.ru/': self.__parse_kommersant
+        # 'https://bits.media': self.__parse_bmedia,
         parser_map = {
             'https://happycoin.club': self.__parse_happycoin,
-            'https://bits.media': self.__parse_bmedia,
-            'https://acryptoinvest.news': self.__parse_acrypto,
-            'https://cryptocurrency.tech': self.__parse_cctech,
             'https://coinspot.io': self.__parse_cspot,
-            'https://www.rbc.ru': self.__parse_rbc,
             'https://coinlife.com': self.__parse_clife,
             'https://hashtelegraph.com': self.__parse_htelegraph,
-            'https://xrp-buy.ru': self.__parse_xrpbuy
+            'https://bitjournal.media/': self.__parse_bjournal,
+
         }
         for prefix, parser in parser_map.items():
             if self.url.startswith(prefix):
@@ -231,7 +235,29 @@ class BaseParser:
         except Exception as e:
             logger.error(e)
 
+    async def __parse_bjournal(self):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(self.url) as response:
+                    text = await response.text()
+                    print(f"HTTP Status: {response.status}")
+                    soup = BeautifulSoup(text, 'lxml')
+                    news_block = soup.find('div', class_='box-container')
+                    return news_block.text
+        except Exception as e:
+            logger.error(e)
 
+    async def __parse_kommersant(self):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(self.url) as response:
+                    text = await response.text()
+                    print(f"HTTP Status: {response.status}")
+                    soup = BeautifulSoup(text, 'lxml')
+                    news_block = soup.find('div', class_='article_text_wrapper js-search-mark')
+                    return news_block.text
+        except Exception as e:
+            logger.error(e)
 
 # hpc = BaseParser('https://hashtelegraph.com/es-protiv-ii-microsoft-grozit-mnogomilliardnyj-shtraf-za-bing/')
 # asyncio.run(hpc.fetch_news())
