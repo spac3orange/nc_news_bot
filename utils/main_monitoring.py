@@ -148,6 +148,7 @@ async def parse_news():
                                     continue
                                 admin_id = config_aiogram.admin_id
                                 mode = edit_mode.get_mode()
+                                print(mode)
                                 if mode == 'Модерация включена':
                                     if len(result) == 2:
                                         if isinstance(admin_id, list):
@@ -200,6 +201,7 @@ async def parse_news():
                                                                                             channel_id, handled,
                                                                                             img_name, with_image=True))
                                             else:
+                                                print('trying to send...')
                                                 img_fila = await send_image(img_name)
                                                 await aiogram_bot.send_photo(channel_id, img_fila, caption=handled)
                                                 logger.info('post sent')
@@ -216,6 +218,7 @@ async def parse_news():
                                                                                             channel_id, handled,
                                                                                             img_name, with_image=False))
                                             else:
+                                                print('trying to send...')
                                                 await aiogram_bot.send_message(channel_id, text=handled)
                                                 logger.info('post sent')
 
