@@ -200,6 +200,7 @@ async def parse_news():
                                                 else:
                                                     img_fila = await send_image(img_name)
                                                     await aiogram_bot.send_photo(channel_id, img_fila, caption=handled)
+                                                    logger.info('post sent')
 
                                         else:
                                             if isinstance(admin_id, list):
@@ -214,6 +215,7 @@ async def parse_news():
                                                                                                 img_name, with_image=False))
                                                 else:
                                                     await aiogram_bot.send_message(channel_id, text=handled)
+                                                    logger.info('post sent')
 
                                 # break
                             await asyncio.sleep(2)
