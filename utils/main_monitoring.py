@@ -143,7 +143,7 @@ async def parse_news():
                                 else:
                                     news_text = result
                                 handled = await ds_ai.get_req(news_text)
-                                if handled:
+                                if handled is not None:
                                     admin_id = config_aiogram.admin_id
                                     mode = edit_mode.get_mode()
                                     if mode == 'Модерация включена':
